@@ -46,6 +46,8 @@ export default function Home() {
       </div>
     );
   } else {
-    return <LoadingAnimation />
+    return (
+      <h1 className="has-text-centered title mt-4">Please <Link href="/login">Login</Link> to your account.</h1>
+    )
   }
 }
