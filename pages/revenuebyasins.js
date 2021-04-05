@@ -1,0 +1,126 @@
+import React from 'react'
+import axios from 'axios'
+import Papa from 'papaparse'
+import LoadingAnimation from '../components/LoadingAnimation'
+import AsinList from '../components/AsinList'
+import { CSVLink, CSVDownload } from "react-csv"
+import { lower, expected, upper } from '../utils/revenueCalculator'
+// import { useAuth } from "../auth"
+
+class RevenueByAsins extends React.Component {
+  constructor() {
+    super();
+    this.state = { asins: [], productDetails: [], isLoading: false };
+    this.handleChange = this.handleChange.bind(this);
+    this.fetchProductDetails = this.fetchProductDetails.bind(this);
+    this.uploadCSV = this.uploadCSV.bind(this);
+  }
+
+  handleChange(event) {
+    const asins = event.target.value.split('\n')
+    this.setState({ asins: asins });
+  }
+
+  uploadCSV = (event) => {
+    const csvFile = event.target.files[0]
+    Papa.parse(csvFile, {
+      complete: (result) => {
+        const asins = result.data.map((el) => el.asin)
+        this.setState({ asins: asins })
+      },
+      header: true
+    });
+  };
+
+  async fetchProductDetails() {
+    this.setState({ isLoading: true })
+
+    const asins = this.state.asins
+    const API_KEY = process.env.RAINFOREST_API_KEY
+
+    for (let i = 0; i < asins.length; i++) {
+      const params = {
+        api_key: API_KEY,
+        type: "product",
+        amazon_domain: "amazon.com",
+        asin: asins[i]
+      }
+      try {
+        const response = await axios.get('https://api.rainforestapi.com/request', { params })
+        const product = response.data.product
+        const thumbnail = product.main_image.link
+        console.log(thumbnail)
+        const reviewCount = product.ratings_total
+        const reviewScore = product.rating
+        const bestSellersRank = product.bestsellers_rank
+        let parentCategory = bestSellersRank[0].category
+        let parentRank = bestSellersRank[0].rank
+        const lowerUnitsSold = lower(parentRank, reviewCount)
+        const expectedUnitsSold = expected(parentRank, reviewCount)
+        const upperUnitsSold = upper(parentRank, reviewCount)
+        let childCategory = ''
+        let childRank = 0
+        if (bestSellersRank.length == 2) {
+          childCategory = bestSellersRank[1].category
+          childRank = bestSellersRank[1].rank
+        }
+        const productDetails = {
+          ASIN: asins[i],
+          'Lower Units Sold': lowerUnitsSold,
+          'Expected Units Sold': expectedUnitsSold,
+          'Upper Units Sold': upperUnitsSold,
+          'Review Count': reviewCount,
+          'Review Score': reviewScore,
+          'Parent Category': parentCategory,
+          'Parent Rank': parentRank,
+          'Child Category': childCategory,
+          'Child Rank': childRank,
+          Thumbnail: thumbnail,
+          Link: `https://www.amazon.com/dp/${asins[i]}`
+        }
+        console.log('productDetails', productDetails)
+        this.setState({ productDetails: [...this.state.productDetails, productDetails] })
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    this.setState({ isLoading: false })
+  }
+
+  render() {
+    // const { user } = useAuth()
+    return (
+      <div style={{ marginTop: "1rem" }}>
+        <h1 className="title has-text-centered">Revenue By Asins</h1>
+        <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+          <div style={{ width: "14rem" }}>
+            <textarea className="textarea is-primary" type="text" value={this.state.asin} onChange={this.handleChange} placeholder="Paste in your asins"></textarea>
+          </div>
+        </div>
+
+        <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
+          <input
+            className=""
+            type="file"
+            name="file"
+            placeholder={null}
+            onChange={this.uploadCSV}
+          />
+        </div>
+
+        <div style={{ marginTop: "1rem" }} className="is-justify-content-center	is-align-items-center is-flex">
+          <button className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
+          <CSVLink className="button is-primary" data={this.state.productDetails} filename={"asin-scrape.csv"}>Export Asins to CSV</CSVLink>
+        </div>
+
+        {this.state.isLoading && <LoadingAnimation />}
+
+        <div style={{ marginTop: "2rem" }} className="is-justify-content-center	is-align-items-center is-flex">
+          <AsinList productDetails={this.state.productDetails} />
+        </div>
+      </div>
+    )
+  }
+}
+
+export default RevenueByAsins

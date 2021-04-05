@@ -1,0 +1,26 @@
+{
+  "name": "firebase-with-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bulma": "^0.9.2",
+    "firebase": "^8.0.0",
+    "firebase-admin": "^9.2.0",
+    "next": "10.0.0",
+    "next-images": "^1.7.0",
+    "nookies": "^2.4.0",
+    "papaparse": "^5.3.0",
+    "react": "17.0.1",
+    "react-csv": "^2.0.3",
+    "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "sass": "^1.32.8"
+  }
+}
