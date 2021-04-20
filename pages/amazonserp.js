@@ -2,7 +2,7 @@ import React from 'react'
 import axios from 'axios'
 import SearchResultsList from '../components/SearchResultsList'
 import LoadingAnimation from '../components/LoadingAnimation'
-import { CSVLink } from "react-csv";
+import { CSVLink } from 'react-csv';
 // import { useAuth } from '../auth'
 
 class AmazonSerp extends React.Component {
@@ -29,22 +29,22 @@ class AmazonSerp extends React.Component {
     this.setState({ filterOption: event.target.value })
     const asins = this.state.searchResults
     let searchResults = []
-    if (event.target.value == 'Default') {
+    if (event.target.value === 'Default') {
       searchResults = this.state.searchPayload
       this.setState({ searchResults: searchResults })
     }
-    if (event.target.value == 'Most Reviews') {
+    if (event.target.value === 'Most Reviews') {
       for (let i = 0; i < asins.length; i++) {
         console.log(asins[i].ratings_total)
         if (asins[i].ratings_total == undefined) {
-          console.log("in conditional")
+          console.log('in conditional')
           asins[i].ratings_total = 0
           searchResults.push(asins[i])
         } else {
           searchResults.push(asins[i])
         }
       }
-      const sortByHighestReviews = searchResults.sort((a, b) => b['ratings_total'] - a['ratings_total'])
+      const sortByHighestReviews = searchResults.sort((a, b) => b.ratings_total - a.ratings_total)
       this.setState({ searchResults: sortByHighestReviews })
     }
   }
@@ -68,15 +68,16 @@ class AmazonSerp extends React.Component {
     const numPagesToScrape = this.state.numPagesToScrape
     for (let i = 0; i < numPagesToScrape; i++) {
       let pageNumber = i + 1
-      console.log("pageNumber", pageNumber)
+      console.log('pageNumber', pageNumber)
       this.setState({ isLoading: true })
       const API_KEY = process.env.RAINFOREST_API_KEY
+      console.log('API_KEY', API_KEY)
       const searchInput = this.state.searchInput
       const params = {
         api_key: API_KEY,
-        type: "search",
+        type: 'search',
         page: pageNumber,
-        amazon_domain: "amazon.com",
+        amazon_domain: 'amazon.com',
         search_term: searchInput
       }
       try {
@@ -91,11 +92,11 @@ class AmazonSerp extends React.Component {
 
   render() {
     return (
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: '1rem' }}>
         <h1 className="title has-text-centered">Amazon SERP</h1>
 
         <div className="mt-2 is-justify-content-center	is-align-items-center is-flex">
-          <p className="title is-5">Go back <input style={{ width: "30px" }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
+          <p className="title is-5">Go back <input style={{ width: '30px' }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
         </div>
 
         <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
@@ -106,7 +107,7 @@ class AmazonSerp extends React.Component {
             <div className="control">
               <button className="button is-info" onClick={this.fetchSerp}>
                 Search
-                </button>
+              </button>
             </div>
           </div>
         </div>
@@ -125,7 +126,7 @@ class AmazonSerp extends React.Component {
         </div>
 
         <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
-          <CSVLink className="button is-primary" data={this.state.searchResults} filename={"search-results.csv"}>Export Asins to CSV</CSVLink>
+          <CSVLink className="button is-primary" data={this.state.searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
         </div>
 
         {this.state.isLoading && <LoadingAnimation />}

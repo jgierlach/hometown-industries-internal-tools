@@ -1,8 +1,8 @@
-import React from "react";
-import nookies from "nookies";
-import { verifyIdToken } from "../firebaseAdmin";
-import firebaseClient from "../firebaseClient";
-import firebase from "firebase/app";
+import React from 'react';
+import nookies from 'nookies';
+import { verifyIdToken } from '../firebaseAdmin';
+import firebaseClient from '../firebaseClient';
+import firebase from 'firebase/app';
 
 function Authenticated({ session }) {
   firebaseClient();
@@ -21,9 +21,10 @@ function Authenticated({ session }) {
           </div>
           <div>
             <button
+              type="button"
               onClick={async () => {
                 await firebase.auth().signOut();
-                window.location.href = "/";
+                window.location.href = '/';
               }}
             >
               Sign out
@@ -48,7 +49,7 @@ export async function getServerSideProps(context) {
       props: { session: `Your email is ${email} and your UID is ${uid}.` },
     };
   } catch (err) {
-    context.res.writeHead(302, { Location: "/login" });
+    context.res.writeHead(302, { Location: '/login' });
     context.res.end();
     return { props: {} };
   }

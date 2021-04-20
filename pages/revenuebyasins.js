@@ -3,8 +3,9 @@ import axios from 'axios'
 import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
 import AsinList from '../components/AsinList'
-import { CSVLink, CSVDownload } from "react-csv"
+import { CSVLink, CSVDownload } from 'react-csv'
 import { lower, expected, upper } from '../utils/revenueCalculator'
+const API_KEY = process.env.RAINFOREST_API_KEY
 // import { useAuth } from "../auth"
 
 class RevenueByAsins extends React.Component {
@@ -34,15 +35,13 @@ class RevenueByAsins extends React.Component {
 
   async fetchProductDetails() {
     this.setState({ isLoading: true })
-
     const asins = this.state.asins
-    const API_KEY = process.env.RAINFOREST_API_KEY
 
     for (let i = 0; i < asins.length; i++) {
       const params = {
         api_key: API_KEY,
-        type: "product",
-        amazon_domain: "amazon.com",
+        type: 'product',
+        amazon_domain: 'amazon.com',
         asin: asins[i]
       }
       try {
@@ -90,11 +89,11 @@ class RevenueByAsins extends React.Component {
   render() {
     // const { user } = useAuth()
     return (
-      <div style={{ marginTop: "1rem" }}>
+      <div style={{ marginTop: '1rem' }}>
         <h1 className="title has-text-centered">Revenue By Asins</h1>
         <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-          <div style={{ width: "14rem" }}>
-            <textarea className="textarea is-primary" type="text" value={this.state.asin} onChange={this.handleChange} placeholder="Paste in your asins"></textarea>
+          <div style={{ width: '14rem' }}>
+            <textarea className="textarea is-primary" type="text" value={this.state.asin} onChange={this.handleChange} placeholder="Paste in your asins" />
           </div>
         </div>
 
@@ -108,14 +107,14 @@ class RevenueByAsins extends React.Component {
           />
         </div>
 
-        <div style={{ marginTop: "1rem" }} className="is-justify-content-center	is-align-items-center is-flex">
+        <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
           <button className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
-          <CSVLink className="button is-primary" data={this.state.productDetails} filename={"asin-scrape.csv"}>Export Asins to CSV</CSVLink>
+          <CSVLink className="button is-primary" data={this.state.productDetails} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
         </div>
 
         {this.state.isLoading && <LoadingAnimation />}
 
-        <div style={{ marginTop: "2rem" }} className="is-justify-content-center	is-align-items-center is-flex">
+        <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
           <AsinList productDetails={this.state.productDetails} />
         </div>
       </div>

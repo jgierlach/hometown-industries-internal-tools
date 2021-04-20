@@ -1,6 +1,7 @@
-import { AuthProvider } from "../auth"
-import Navbar from "../components/Navbar"
+import { AuthProvider } from '../auth'
+import Navbar from '../components/Navbar'
 import '../styles/styles.scss'
+import React from 'react'
 
 function MyApp({ Component, pageProps }) {
   return (
