@@ -6,7 +6,7 @@ import AsinList from '../components/AsinList'
 import { CSVLink, CSVDownload } from 'react-csv'
 import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage } from '../utils/helper'
-import { findCompanyLocation } from '../utils/companyLocation'
+// import { findCompanyLocation } from '../utils/companyLocation'
 const API_KEY = process.env.RAINFOREST_API_KEY
 // import { useAuth } from "../auth"
 
