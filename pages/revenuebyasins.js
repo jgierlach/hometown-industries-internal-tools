@@ -4,11 +4,8 @@ import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
 import AsinList from '../components/AsinList'
 import { CSVLink, CSVDownload } from 'react-csv'
-import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage } from '../utils/helper'
-// import { findCompanyLocation } from '../utils/companyLocation'
-const API_KEY = process.env.RAINFOREST_API_KEY
-// import { useAuth } from "../auth"
+import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 
 class RevenueByAsins extends React.Component {
   constructor() {
@@ -36,63 +33,50 @@ class RevenueByAsins extends React.Component {
   };
 
   async fetchProductDetails() {
-    this.setState({ isLoading: true })
+    this.setState({ isLoading: true, productDetails: [] })
     const asins = this.state.asins
     for (let i = 0; i < asins.length; i++) {
-      const params = {
-        api_key: API_KEY,
-        type: 'product',
-        amazon_domain: 'amazon.com',
-        asin: asins[i]
+      // Scrape product detail page
+      const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: asins[i] } })
+      const product = response.data.product
+
+      // Find thumbnail, review count, and review score
+      const thumbnail = product.main_image.link
+      const reviewCount = product.ratings_total
+      const reviewScore = product.rating
+
+      // Find rank object
+      const bestSellersRank = product.bestsellers_rank
+
+      // Find parent category and rank
+      const parentCategory = findParentCategory(bestSellersRank)
+      const parentRank = findParentRank(bestSellersRank)
+
+      // Find child category and rank
+      const childCategory = findChildCategory(bestSellersRank)
+      const childRank = findChildRank(bestSellersRank)
+
+      // Find company location
+      const sellerPage = findSellerPage(product)
+      const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
+      const companyCountry = location.data.country
+
+      const productDetails = {
+        ASIN: asins[i],
+        'Lower Units Sold': calculateLower(parentRank, reviewCount, parentCategory),
+        'Expected Units Sold': calculateExpected(parentRank, reviewCount, parentCategory),
+        'Upper Units Sold': calculateUpper(parentRank, reviewCount, parentCategory),
+        'Review Count': reviewCount,
+        'Review Score': reviewScore,
+        'Parent Category': parentCategory,
+        'Parent Rank': parentRank,
+        'Child Category': childCategory,
+        'Child Rank': childRank,
+        'Company Country': companyCountry,
+        Thumbnail: thumbnail,
+        Link: `https://www.amazon.com/dp/${asins[i]}`
       }
-      try {
-        const response = await axios.get('https://api.rainforestapi.com/request', { params })
-        const product = response.data.product
-        const thumbnail = product.main_image.link
-        const reviewCount = product.ratings_total
-        const reviewScore = product.rating
-
-        // Find company location
-        const sellerPage = findSellerPage(product)
-        const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
-        const companyCountry = location.data.country
-
-        // Find rank object
-        const bestSellersRank = product.bestsellers_rank
-
-        // Find parent category and rank
-        const parentCategory = findParentCategory(bestSellersRank)
-        const parentRank = findParentRank(bestSellersRank)
-
-        // Find child category and rank
-        const childCategory = findChildCategory(bestSellersRank)
-        const childRank = findChildRank(bestSellersRank)
-
-        // Calculate revenues
-        const lowerUnitsSold = calculateLower(parentRank, reviewCount, parentCategory)
-        const expectedUnitsSold = calculateExpected(parentRank, reviewCount, parentCategory)
-        const upperUnitsSold = calculateUpper(parentRank, reviewCount, parentCategory)
-
-        const productDetails = {
-          ASIN: asins[i],
-          'Lower Units Sold': lowerUnitsSold,
-          'Expected Units Sold': expectedUnitsSold,
-          'Upper Units Sold': upperUnitsSold,
-          'Review Count': reviewCount,
-          'Review Score': reviewScore,
-          'Parent Category': parentCategory,
-          'Parent Rank': parentRank,
-          'Child Category': childCategory,
-          'Child Rank': childRank,
-          'Company Country': companyCountry,
-          Thumbnail: thumbnail,
-          Link: `https://www.amazon.com/dp/${asins[i]}`
-        }
-        console.log('productDetails', productDetails)
-        this.setState({ productDetails: [...this.state.productDetails, productDetails] })
-      } catch (err) {
-        console.error(err)
-      }
+      this.setState({ productDetails: [...this.state.productDetails, productDetails] })
     }
     this.setState({ isLoading: false })
   }
