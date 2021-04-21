@@ -4,7 +4,9 @@ import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
 import AsinList from '../components/AsinList'
 import { CSVLink, CSVDownload } from 'react-csv'
-import { lower, expected, upper } from '../utils/revenueCalculator'
+import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
+import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage } from '../utils/helper'
+import { findCompanyLocation } from '../utils/companyLocation'
 const API_KEY = process.env.RAINFOREST_API_KEY
 // import { useAuth } from "../auth"
 
@@ -36,7 +38,6 @@ class RevenueByAsins extends React.Component {
   async fetchProductDetails() {
     this.setState({ isLoading: true })
     const asins = this.state.asins
-
     for (let i = 0; i < asins.length; i++) {
       const params = {
         api_key: API_KEY,
@@ -48,21 +49,30 @@ class RevenueByAsins extends React.Component {
         const response = await axios.get('https://api.rainforestapi.com/request', { params })
         const product = response.data.product
         const thumbnail = product.main_image.link
-        console.log(thumbnail)
         const reviewCount = product.ratings_total
         const reviewScore = product.rating
+
+        // Find company location
+        const sellerPage = findSellerPage(product)
+        // findCompanyLocation(sellerPage)
+        // console.log(sellerPage)
+
+        // Find rank object
         const bestSellersRank = product.bestsellers_rank
-        let parentCategory = bestSellersRank[0].category
-        let parentRank = bestSellersRank[0].rank
-        const lowerUnitsSold = lower(parentRank, reviewCount)
-        const expectedUnitsSold = expected(parentRank, reviewCount)
-        const upperUnitsSold = upper(parentRank, reviewCount)
-        let childCategory = ''
-        let childRank = 0
-        if (bestSellersRank.length == 2) {
-          childCategory = bestSellersRank[1].category
-          childRank = bestSellersRank[1].rank
-        }
+
+        // Find parent category and rank
+        const parentCategory = findParentCategory(bestSellersRank)
+        const parentRank = findParentRank(bestSellersRank)
+
+        // Find child category and rank
+        const childCategory = findChildCategory(bestSellersRank)
+        const childRank = findChildRank(bestSellersRank)
+
+        // Calculate revenues
+        const lowerUnitsSold = calculateLower(parentRank, reviewCount, parentCategory)
+        const expectedUnitsSold = calculateExpected(parentRank, reviewCount, parentCategory)
+        const upperUnitsSold = calculateUpper(parentRank, reviewCount, parentCategory)
+
         const productDetails = {
           ASIN: asins[i],
           'Lower Units Sold': lowerUnitsSold,
@@ -87,7 +97,6 @@ class RevenueByAsins extends React.Component {
   }
 
   render() {
-    // const { user } = useAuth()
     return (
       <div style={{ marginTop: '1rem' }}>
         <h1 className="title has-text-centered">Revenue By Asins</h1>
@@ -108,7 +117,7 @@ class RevenueByAsins extends React.Component {
         </div>
 
         <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-          <button className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
+          <button type="button" className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
           <CSVLink className="button is-primary" data={this.state.productDetails} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
         </div>
 

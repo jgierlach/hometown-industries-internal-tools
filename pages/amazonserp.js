@@ -35,9 +35,7 @@ class AmazonSerp extends React.Component {
     }
     if (event.target.value === 'Most Reviews') {
       for (let i = 0; i < asins.length; i++) {
-        console.log(asins[i].ratings_total)
-        if (asins[i].ratings_total == undefined) {
-          console.log('in conditional')
+        if (asins[i].ratings_total === undefined) {
           asins[i].ratings_total = 0
           searchResults.push(asins[i])
         } else {
@@ -71,7 +69,6 @@ class AmazonSerp extends React.Component {
       console.log('pageNumber', pageNumber)
       this.setState({ isLoading: true })
       const API_KEY = process.env.RAINFOREST_API_KEY
-      console.log('API_KEY', API_KEY)
       const searchInput = this.state.searchInput
       const params = {
         api_key: API_KEY,
@@ -105,7 +102,7 @@ class AmazonSerp extends React.Component {
               <input className="input" type="text" value={this.state.searchInput} onChange={this.handleChange} placeholder="search Amazon" />
             </div>
             <div className="control">
-              <button className="button is-info" onClick={this.fetchSerp}>
+              <button type="button" className="button is-info" onClick={this.fetchSerp}>
                 Search
               </button>
             </div>
