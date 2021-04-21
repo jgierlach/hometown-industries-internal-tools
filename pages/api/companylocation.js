@@ -2,12 +2,9 @@ const axios = require('axios')
 const cheerio = require('cheerio')
 
 const findCountry = (snippet, firstLetter, secondLetter) => {
-  console.log('first letter', firstLetter)
-  console.log('second letter', secondLetter)
   for (let i = 0; i < snippet.length; i++) {
     console.log(snippet[i])
     if (snippet[i] === firstLetter && snippet[i + 1] === secondLetter) {
-      console.log('hello from inside findCountry conditional')
       return true
     }
   }

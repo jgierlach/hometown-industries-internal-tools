@@ -60,31 +60,18 @@ class AmazonSerp extends React.Component {
   }
 
   async fetchSerp() {
-    // const response = await axios.get("/api/search", { params: { query: this.state.searchInput } })
-    // this.setState({ searchResults: response.data })
     this.setState({ searchResults: [], searchPayload: [], filterOption: '' })
     const numPagesToScrape = this.state.numPagesToScrape
     for (let i = 0; i < numPagesToScrape; i++) {
       let pageNumber = i + 1
       console.log('pageNumber', pageNumber)
       this.setState({ isLoading: true })
-      const API_KEY = process.env.RAINFOREST_API_KEY
       const searchInput = this.state.searchInput
-      const params = {
-        api_key: API_KEY,
-        type: 'search',
-        page: pageNumber,
-        amazon_domain: 'amazon.com',
-        search_term: searchInput
-      }
-      try {
-        const products = await axios.get('https://api.rainforestapi.com/request', { params })
-        const searchResults = products.data.search_results
-        this.setState({ searchResults: this.state.searchResults.concat(searchResults), searchPayload: this.state.searchResults.concat(searchResults), isLoading: false })
-      } catch (err) {
-        console.error(err)
-      }
+      const response = await axios.get('/api/scrapeamazonsearch', { params: { pageNumber: numPagesToScrape[i], searchInput: searchInput } })
+      const searchResults = response.data.searchResults
+      this.setState({ searchResults: this.state.searchResults.concat(searchResults), searchPayload: this.state.searchResults.concat(searchResults), isLoading: false })
     }
+    this.setState({ isLoading: false })
   }
 
   render() {
