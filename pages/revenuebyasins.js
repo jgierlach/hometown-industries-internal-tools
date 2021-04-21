@@ -54,10 +54,8 @@ class RevenueByAsins extends React.Component {
 
         // Find company location
         const sellerPage = findSellerPage(product)
-        const poot = await axios.get('/api/hello', { params: { url: sellerPage } })
-        console.log(poot.data)
-        // findCompanyLocation(sellerPage)
-        // console.log(sellerPage)
+        const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
+        const companyCountry = location.data.country
 
         // Find rank object
         const bestSellersRank = product.bestsellers_rank
@@ -86,6 +84,7 @@ class RevenueByAsins extends React.Component {
           'Parent Rank': parentRank,
           'Child Category': childCategory,
           'Child Rank': childRank,
+          'Company Country': companyCountry,
           Thumbnail: thumbnail,
           Link: `https://www.amazon.com/dp/${asins[i]}`
         }

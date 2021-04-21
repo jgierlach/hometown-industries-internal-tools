@@ -14,6 +14,7 @@ const AsinList = (props) => {
             <th>Upper Units Sold</th>
             <th>Rating</th>
             <th>Review Count</th>
+            <th>Country</th>
             <th>Thumbnail</th>
             <th>Link</th>
           </tr>
