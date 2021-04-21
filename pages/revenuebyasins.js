@@ -54,6 +54,8 @@ class RevenueByAsins extends React.Component {
 
         // Find company location
         const sellerPage = findSellerPage(product)
+        const poot = await axios.get('/api/hello', { params: { url: sellerPage } })
+        console.log(poot.data)
         // findCompanyLocation(sellerPage)
         // console.log(sellerPage)
 
