@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import firebaseClient from "../firebaseClient";
-import firebase from "firebase/app";
-import "firebase/auth";
+import React, { useState } from 'react';
+import firebaseClient from '../firebaseClient';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 
 export default function Login({ props }) {
   firebaseClient();
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
+  const [email, setEmail] = useState('');
+  const [pass, setPass] = useState('');
   return (
     <section className="hero">
       <div className="hero-body">
@@ -28,7 +28,7 @@ export default function Login({ props }) {
                       placeholder="bobross@email.com"
                     />
                     <span className="icon is-small is-left">
-                      <i className="fa fa-envelope"></i>
+                      <i className="fa fa-envelope" />
                     </span>
                   </div>
                 </div>
@@ -45,19 +45,20 @@ export default function Login({ props }) {
                       placeholder="Enter your password"
                     />
                     <span className="icon is-small is-left">
-                      <i className="fa fa-lock"></i>
+                      <i className="fa fa-lock" />
                     </span>
                   </div>
                 </div>
                 <div className="field mt-4">
                   <button
+                    type="button"
                     className="button is-info"
                     onClick={async () => {
                       await firebase
                         .auth()
                         .signInWithEmailAndPassword(email, pass)
                         .then(function (firebaseUser) {
-                          window.location.href = "/";
+                          window.location.href = '/';
                         })
                         .catch(function (error) {
                           const message = error.message;
@@ -66,7 +67,7 @@ export default function Login({ props }) {
                     }}
                   >
                     Log in
-               </button>
+                  </button>
                 </div>
               </div>
             </div>

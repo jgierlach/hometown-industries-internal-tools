@@ -60,7 +60,7 @@ class AmazonSerp extends React.Component {
   }
 
   async fetchSerp() {
-    this.setState({ searchResults: [], searchPayload: [], filterOption: '' })
+    this.setState({ searchResults: [], searchPayload: [], filterOption: '', isLoading: true })
     const numPagesToScrape = this.state.numPagesToScrape
     for (let i = 0; i < numPagesToScrape; i++) {
       let pageNumber = i + 1
