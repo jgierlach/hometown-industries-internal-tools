@@ -1,8 +1,8 @@
-const admin = require("firebase-admin");
+const admin = require('firebase-admin');
 // const serviceAccount = require("./secret.json");
 const serviceAccount = {
-  type: "service_account",
-  project_id: "ht-internal-tools",
+  type: 'service_account',
+  project_id: 'ht-internal-tools',
   private_key_id: process.env.PRIVATE_KEY_ID,
   private_key: process.env.FIREBASE_PRIVATE_KEY,
   client_email: process.env.CLIENT_EMAIL,
@@ -17,7 +17,7 @@ export const verifyIdToken = (token) => {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
-      databaseURL: "https://nextjs-firebase-auth-9bc98.firebaseio.com",
+      databaseURL: 'https://nextjs-firebase-auth-9bc98.firebaseio.com',
     });
   }
 

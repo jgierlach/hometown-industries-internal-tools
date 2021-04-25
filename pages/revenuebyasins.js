@@ -83,7 +83,7 @@ class RevenueByAsins extends React.Component {
 
   render() {
     return (
-      <div style={{ marginTop: '1rem' }}>
+      <div className="container" style={{ marginTop: '1rem' }}>
         <h1 className="title has-text-centered">Revenue By Asins</h1>
         <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
           <div style={{ width: '14rem' }}>

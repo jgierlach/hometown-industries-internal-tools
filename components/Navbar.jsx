@@ -1,6 +1,7 @@
+import React from 'react'
 import Link from 'next/link'
-import { useAuth } from "../auth";
-import firebase from "firebase/app";
+import { useAuth } from '../auth'
+import firebase from 'firebase/app'
 
 const Navbar = () => {
   const { user } = useAuth()
@@ -13,14 +14,16 @@ const Navbar = () => {
             <Link href="/amazonserp"><a className="navbar-item">Amazon SERP</a></Link>
             <Link href="/revenuebyasins"><a className="navbar-item">Revenue By ASINs</a></Link>
             <Link href="/scraperank"><a className="navbar-item">Scrape Rank From File</a></Link>
+            <Link href="/monitorasins"><a className="navbar-item">Monitor Asins</a></Link>
           </div>
           <div className="navbar-end">
             <div className="navbar-item">
               <div className="buttons">
                 <button
+                  type="button"
                   onClick={async () => {
                     await firebase.auth().signOut();
-                    window.location.href = "/login";
+                    window.location.href = '/login';
                   }}
                   style={{ background: 'white' }}
                   className="button is-light"
