@@ -18,6 +18,36 @@ const assignCountry = (snippet) => {
   if (findCountry(snippet, 'C', 'N')) {
     return 'CN'
   }
+  if (findCountry(snippet, 'C', 'A')) {
+    return 'CA'
+  }
+  if (findCountry(snippet, 'M', 'X')) {
+    return 'MX'
+  }
+  if (findCountry(snippet, 'D', 'E')) {
+    return 'DE'
+  }
+  if (findCountry(snippet, 'E', 'S')) {
+    return 'ES'
+  }
+  if (findCountry(snippet, 'F', 'R')) {
+    return 'FR'
+  }
+  if (findCountry(snippet, 'G', 'B')) {
+    return 'GB'
+  }
+  if (findCountry(snippet, 'I', 'T')) {
+    return 'IT'
+  }
+  if (findCountry(snippet, 'I', 'T')) {
+    return 'IT'
+  }
+  if (findCountry(snippet, 'I', 'N')) {
+    return 'IN'
+  }
+  if (findCountry(snippet, 'J', 'P')) {
+    return 'JP'
+  }
   return 'Country Not Found'
 }
 
