@@ -81,11 +81,7 @@ class AmazonSerp extends React.Component {
         <div className="is-justify-content-center is-align-items-center is-flex">
           <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
 
-            <h1 className="title has-text-centered mt-2">Amazon SERP</h1>
-
-            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-              <p className="title is-5">Go back <input style={{ width: '30px' }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
-            </div>
+            <h1 className="title has-text-centered">Amazon SERP</h1>
 
             <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
               <div className="field has-addons">
@@ -98,6 +94,10 @@ class AmazonSerp extends React.Component {
                   </button>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+              <p className="">Go back <input style={{ width: '30px' }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
             </div>
 
             <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
@@ -122,7 +122,7 @@ class AmazonSerp extends React.Component {
 
         {this.state.isLoading && <LoadingAnimation />}
 
-        <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
+        <div style={{ marginTop: '2rem' }} className="is-justify-content-center is-align-items-center is-flex">
           <SearchResultsList searchResults={this.state.searchResults} />
         </div>
       </div>
