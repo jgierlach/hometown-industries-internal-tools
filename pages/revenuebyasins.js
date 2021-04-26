@@ -83,27 +83,33 @@ class RevenueByAsins extends React.Component {
 
   render() {
     return (
-      <div className="container" style={{ marginTop: '1rem' }}>
-        <h1 className="title has-text-centered">Revenue By Asins</h1>
-        <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-          <div style={{ width: '14rem' }}>
-            <textarea className="textarea is-primary" type="text" value={this.state.asin} onChange={this.handleChange} placeholder="Paste in your asins" />
+      <div style={{ marginTop: '1rem' }} className="container">
+
+        <div className="is-justify-content-center is-align-items-center is-flex">
+          <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
+            <h1 className="title has-text-centered">Revenue By Asins</h1>
+            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+              <div style={{ width: '14rem' }}>
+                <textarea style={{ background: '#fafafa' }} className="textarea is-primary" type="text" value={this.state.asin} onChange={this.handleChange} placeholder="Paste in your asins" />
+              </div>
+            </div>
+
+            <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
+              <input
+                className=""
+                type="file"
+                name="file"
+                placeholder={null}
+                onChange={this.uploadCSV}
+              />
+            </div>
+
+            <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+              <button type="button" className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
+              <CSVLink className="button is-primary" data={this.state.productDetails} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
+            </div>
+
           </div>
-        </div>
-
-        <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
-          <input
-            className=""
-            type="file"
-            name="file"
-            placeholder={null}
-            onChange={this.uploadCSV}
-          />
-        </div>
-
-        <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-          <button type="button" className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
-          <CSVLink className="button is-primary" data={this.state.productDetails} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
         </div>
 
         {this.state.isLoading && <LoadingAnimation />}

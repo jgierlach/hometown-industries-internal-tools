@@ -77,40 +77,47 @@ class AmazonSerp extends React.Component {
   render() {
     return (
       <div style={{ marginTop: '1rem' }}>
-        <h1 className="title has-text-centered">Amazon SERP</h1>
 
-        <div className="mt-2 is-justify-content-center	is-align-items-center is-flex">
-          <p className="title is-5">Go back <input style={{ width: '30px' }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
-        </div>
+        <div className="is-justify-content-center is-align-items-center is-flex">
+          <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
 
-        <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
-          <div className="field has-addons">
-            <div className="control">
-              <input className="input" type="text" value={this.state.searchInput} onChange={this.handleChange} placeholder="search Amazon" />
+            <h1 className="title has-text-centered mt-2">Amazon SERP</h1>
+
+            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+              <p className="title is-5">Go back <input style={{ width: '30px' }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
             </div>
-            <div className="control">
-              <button type="button" className="button is-info" onClick={this.fetchSerp}>
-                Search
-              </button>
+
+            <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
+              <div className="field has-addons">
+                <div className="control">
+                  <input style={{ background: '#fafafa' }} className="input" type="text" value={this.state.searchInput} onChange={this.handleChange} placeholder="search Amazon" />
+                </div>
+                <div className="control">
+                  <button type="button" className="button is-info" onClick={this.fetchSerp}>
+                    Search
+                  </button>
+                </div>
+              </div>
             </div>
+
+            <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
+              <p>Filter By: <span><input placeholder="Brand Name" onChange={this.updateBrandName} type="text" value={this.state.brandName} /></span></p>
+            </div>
+
+            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+              <p>Sort By:
+               <select value={this.state.filterOption} onChange={this.updateFilterOption}>
+                  <option value="Default">Default</option>
+                  <option value="Most Reviews">Most Reviews</option>
+                </select>
+              </p>
+            </div>
+
+            <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
+              <CSVLink className="button is-primary" data={this.state.searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
+            </div>
+
           </div>
-        </div>
-
-        <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
-          <p>Filter By: <span><input placeholder="Brand Name" onChange={this.updateBrandName} type="text" value={this.state.brandName} /></span></p>
-        </div>
-
-        <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-          <p>Sort By:
-          <select value={this.state.filterOption} onChange={this.updateFilterOption}>
-              <option value="Default">Default</option>
-              <option value="Most Reviews">Most Reviews</option>
-            </select>
-          </p>
-        </div>
-
-        <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
-          <CSVLink className="button is-primary" data={this.state.searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
         </div>
 
         {this.state.isLoading && <LoadingAnimation />}
