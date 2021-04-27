@@ -61,7 +61,7 @@ export default function AmazonSerp({ props }) {
 
   if (user) {
     return (
-      <div style={{ marginTop: '1rem' }}>
+      <div style={{ marginTop: '2rem' }}>
 
         <div className="is-justify-content-center is-align-items-center is-flex">
           <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
