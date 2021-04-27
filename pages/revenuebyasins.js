@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react';
 import axios from 'axios'
 import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
@@ -7,34 +7,26 @@ import { CSVLink, CSVDownload } from 'react-csv'
 import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage } from '../utils/helper'
 import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 
-class RevenueByAsins extends React.Component {
-  constructor() {
-    super();
-    this.state = { asins: [], productDetails: [], isLoading: false };
-    this.handleChange = this.handleChange.bind(this);
-    this.fetchProductDetails = this.fetchProductDetails.bind(this);
-    this.uploadCSV = this.uploadCSV.bind(this);
-  }
+export default function RevenueByAsins({ props }) {
+  const [textarea, setTextarea] = useState('')
+  const [asins, setAsins] = useState([]);
+  const [productInfoArray, setProductInfoArray] = useState([]);
+  const [isLoading, setIsLoading] = useState(false)
 
-  handleChange(event) {
-    const asins = event.target.value.split('\n')
-    this.setState({ asins: asins });
-  }
-
-  uploadCSV = (event) => {
+  const uploadCSV = (event) => {
     const csvFile = event.target.files[0]
     Papa.parse(csvFile, {
       complete: (result) => {
-        const asins = result.data.map((el) => el.asin)
-        this.setState({ asins: asins })
+        const asinsFromCsv = result.data.map((el) => el.asin)
+        setAsins(asinsFromCsv)
       },
       header: true
     });
-  };
+  }
 
-  async fetchProductDetails() {
-    this.setState({ isLoading: true, productDetails: [] })
-    const asins = this.state.asins
+  const fetchProductDetails = async () => {
+    setIsLoading(true)
+    setProductInfoArray([])
     for (let i = 0; i < asins.length; i++) {
       // Scrape product detail page
       const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: asins[i] } })
@@ -61,7 +53,7 @@ class RevenueByAsins extends React.Component {
       const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
       const companyCountry = location.data.country
 
-      const productDetails = {
+      const productInfo = {
         ASIN: asins[i],
         'Lower Units Sold': calculateLower(parentRank, reviewCount, parentCategory),
         'Expected Units Sold': calculateExpected(parentRank, reviewCount, parentCategory),
@@ -76,50 +68,56 @@ class RevenueByAsins extends React.Component {
         Thumbnail: thumbnail,
         Link: `https://www.amazon.com/dp/${asins[i]}`
       }
-      this.setState({ productDetails: [...this.state.productDetails, productDetails] })
+      setProductInfoArray((productInfoArray) => [...productInfoArray, productInfo])
     }
-    this.setState({ isLoading: false })
+    setIsLoading(false)
   }
 
-  render() {
-    return (
-      <div style={{ marginTop: '1rem' }} className="container">
+  return (
+    <div style={{ marginTop: '1rem' }} className="container">
 
-        <div className="is-justify-content-center is-align-items-center is-flex">
-          <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
-            <h1 className="title has-text-centered">Revenue By Asins</h1>
-            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-              <div style={{ width: '14rem' }}>
-                <textarea style={{ background: '#fafafa' }} className="textarea is-primary" type="text" value={this.state.asin} onChange={this.handleChange} placeholder="Paste in your asins" />
-              </div>
-            </div>
-
-            <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
-              <input
-                className=""
-                type="file"
-                name="file"
-                placeholder={null}
-                onChange={this.uploadCSV}
+      <div className="is-justify-content-center is-align-items-center is-flex">
+        <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
+          <h1 className="title has-text-centered">Revenue By Asins</h1>
+          <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+            <div style={{ width: '14rem' }}>
+              <textarea
+                style={{ background: '#fafafa' }}
+                className="textarea is-primary"
+                type="text"
+                value={textarea}
+                placeholder="Paste in your asins"
+                onChange={(event) => {
+                  setTextarea(event.target.value)
+                  setAsins(event.target.value.split('\n'))
+                }}
               />
             </div>
-
-            <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-              <button type="button" className="button is-info mr-2" onClick={this.fetchProductDetails}>Scrape</button>
-              <CSVLink className="button is-primary" data={this.state.productDetails} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
-            </div>
-
           </div>
-        </div>
 
-        {this.state.isLoading && <LoadingAnimation />}
+          <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
+            <input
+              className=""
+              type="file"
+              name="file"
+              placeholder={null}
+              onChange={(event) => uploadCSV(event)}
+            />
+          </div>
 
-        <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-          <AsinList productDetails={this.state.productDetails} />
+          <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+            <button type="button" className="button is-info mr-2" onClick={fetchProductDetails}>Scrape</button>
+            <CSVLink className="button is-primary" data={productInfoArray} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
+          </div>
+
         </div>
       </div>
-    )
-  }
-}
 
-export default RevenueByAsins
+      {isLoading && <LoadingAnimation />}
+
+      <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+        <AsinList productDetails={productInfoArray} />
+      </div>
+    </div>
+  )
+}
