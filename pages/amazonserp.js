@@ -1,80 +1,65 @@
-import React from 'react'
+import React, { useState } from 'react';
 import axios from 'axios'
 import SearchResultsList from '../components/SearchResultsList'
 import LoadingAnimation from '../components/LoadingAnimation'
 import { CSVLink } from 'react-csv';
-// import { useAuth } from '../auth'
+import { useAuth } from '../auth'
+import Link from 'next/link'
 
-class AmazonSerp extends React.Component {
-  constructor() {
-    super();
-    this.state = { searchInput: '', searchResults: [], searchPayload: [], isLoading: false, numPagesToScrape: 1, filterOption: '', brandName: '' };
+export default function AmazonSerp({ props }) {
+  const { user } = useAuth();
+  const [searchInput, setSearchInput] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [searchPayload, setSearchPayload] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [numPagesToScrape, setNumPagesToScrape] = useState(1)
+  const [filterOption, setFilterOption] = useState('')
+  const [brandName, setBrandName] = useState('')
 
-    this.handleChange = this.handleChange.bind(this);
-    this.fetchSerp = this.fetchSerp.bind(this);
-    this.updatePageCount = this.updatePageCount.bind(this)
-    this.updateFilterOption = this.updateFilterOption.bind(this)
-    this.updateBrandName = this.updateBrandName.bind(this)
+  const updateSearchInput = (event) => {
+    setSearchInput(event.target.value)
   }
 
-  handleChange(event) {
-    this.setState({ searchInput: event.target.value });
+  const updateNumPagesToScrape = (event) => {
+    setNumPagesToScrape(Number(event.target.value))
   }
 
-  updatePageCount(event) {
-    this.setState({ numPagesToScrape: Number(event.target.value) })
-  }
-
-  updateFilterOption(event) {
-    this.setState({ filterOption: event.target.value })
-    const asins = this.state.searchResults
-    let searchResults = []
+  const updateFilterOption = (event) => {
     if (event.target.value === 'Default') {
-      searchResults = this.state.searchPayload
-      this.setState({ searchResults: searchResults })
+      setFilterOption('Default')
+      setSearchResults(searchPayload)
     }
     if (event.target.value === 'Most Reviews') {
-      for (let i = 0; i < asins.length; i++) {
-        if (asins[i].ratings_total === undefined) {
-          asins[i].ratings_total = 0
-          searchResults.push(asins[i])
-        } else {
-          searchResults.push(asins[i])
-        }
-      }
-      const sortByHighestReviews = searchResults.sort((a, b) => b.ratings_total - a.ratings_total)
-      this.setState({ searchResults: sortByHighestReviews })
+      setFilterOption('Most Reviews')
+      setSearchResults((searchResults) => {
+        const filterUndefinedValues = searchResults.filter(result => result.ratings_total !== undefined)
+        return filterUndefinedValues.sort((a, b) => b.ratings_total - a.ratings_total)
+      })
     }
   }
 
-  updateBrandName(event) {
-    this.setState({ brandName: event.target.value })
-    let filteredByBrandName = []
-    if (event.target.value == '') {
-      filteredByBrandName = this.state.searchPayload
-      this.setState({ searchResults: filteredByBrandName })
-    } else {
-      filteredByBrandName = this.state.searchResults.filter(asin => asin.brand.toLowerCase().includes(event.target.value.toLowerCase()))
-      this.setState({ searchResults: filteredByBrandName })
-    }
+  const updateBrandName = (event) => {
+    setBrandName(event.target.value)
   }
 
-  async fetchSerp() {
-    this.setState({ searchResults: [], searchPayload: [], filterOption: '', isLoading: true })
-    const numPagesToScrape = this.state.numPagesToScrape
+  const fetchSerp = async () => {
+    setSearchResults([])
+    setSearchPayload([])
+    setFilterOption('')
+    setIsLoading(true)
+
     for (let i = 0; i < numPagesToScrape; i++) {
       let pageNumber = i + 1
       console.log('pageNumber', pageNumber)
-      this.setState({ isLoading: true })
-      const searchInput = this.state.searchInput
-      const response = await axios.get('/api/scrapeamazonsearch', { params: { pageNumber: numPagesToScrape[i], searchInput: searchInput } })
-      const searchResults = response.data.searchResults
-      this.setState({ searchResults: this.state.searchResults.concat(searchResults), searchPayload: this.state.searchResults.concat(searchResults), isLoading: false })
+      const response = await axios.get('/api/scrapeamazonsearch', { params: { pageNumber: pageNumber, searchInput: searchInput } })
+      setSearchResults((searchResults) => searchResults.concat(response.data.searchResults))
+      setSearchPayload((searchResults) => searchResults.concat(response.data.searchResults))
     }
-    this.setState({ isLoading: false })
+
+    setIsLoading(false)
   }
 
-  render() {
+  if (user) {
     return (
       <div style={{ marginTop: '1rem' }}>
 
@@ -86,10 +71,16 @@ class AmazonSerp extends React.Component {
             <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
               <div className="field has-addons">
                 <div className="control">
-                  <input style={{ background: '#fafafa' }} className="input" type="text" value={this.state.searchInput} onChange={this.handleChange} placeholder="search Amazon" />
+                  <input
+                    style={{ background: '#fafafa' }}
+                    className="input"
+                    type="text"
+                    value={searchInput}
+                    onChange={(event) => updateSearchInput(event)}
+                    placeholder="search Amazon" />
                 </div>
                 <div className="control">
-                  <button type="button" className="button is-info" onClick={this.fetchSerp}>
+                  <button type="button" className="button is-info" onClick={fetchSerp}>
                     Search
                   </button>
                 </div>
@@ -97,16 +88,31 @@ class AmazonSerp extends React.Component {
             </div>
 
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-              <p className="">Go back <input style={{ width: '30px' }} onChange={this.updatePageCount} type="text" value={this.state.numPagesToScrape} /> page{this.state.numPagesToScrape > 1 && <span>s</span>}</p>
+              <p>Go back
+              <input
+                  style={{ width: '30px' }}
+                  onChange={event => updateNumPagesToScrape(event)}
+                  type="text"
+                  value={numPagesToScrape} />
+              page{numPagesToScrape > 1 && <span>s</span>}
+              </p>
             </div>
 
             <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
-              <p>Filter By: <span><input placeholder="Brand Name" onChange={this.updateBrandName} type="text" value={this.state.brandName} /></span></p>
+              <p>Filter By:
+              <span>
+                  <input
+                    placeholder="Brand Name"
+                    onChange={(event) => updateBrandName(event)}
+                    type="text"
+                    value={brandName} />
+                </span>
+              </p>
             </div>
 
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
               <p>Sort By:
-               <select value={this.state.filterOption} onChange={this.updateFilterOption}>
+               <select value={filterOption} onChange={(event) => updateFilterOption(event)}>
                   <option value="Default">Default</option>
                   <option value="Most Reviews">Most Reviews</option>
                 </select>
@@ -114,20 +120,22 @@ class AmazonSerp extends React.Component {
             </div>
 
             <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
-              <CSVLink className="button is-primary" data={this.state.searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
+              <CSVLink className="button is-primary" data={searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
             </div>
 
           </div>
         </div>
 
-        {this.state.isLoading && <LoadingAnimation />}
+        {isLoading && <LoadingAnimation />}
 
         <div style={{ marginTop: '2rem' }} className="is-justify-content-center is-align-items-center is-flex">
-          <SearchResultsList searchResults={this.state.searchResults} />
+          <SearchResultsList searchResults={searchResults} />
         </div>
       </div>
     )
+  } else {
+    return (
+      <h1 className="has-text-centered title mt-4">Please <Link href="/login">Login</Link> to your account.</h1>
+    )
   }
 }
-
-export default AmazonSerp
