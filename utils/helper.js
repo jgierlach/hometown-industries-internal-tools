@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 const findParentCategory = (bestSellersRank) => {
   if (bestSellersRank === undefined) {
     return 'No Parent Category'
@@ -45,10 +47,19 @@ const findSellerPage = (product) => {
   return product.buybox_winner.fulfillment.third_party_seller.link
 }
 
+const findCompanyCountry = async (sellerPage, scrapeForSellerCountry) => {
+  if (scrapeForSellerCountry) {
+    const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
+    return location.data.country
+  }
+  return 'N/A'
+}
+
 module.exports = {
   findParentCategory,
   findParentRank,
   findChildCategory,
   findChildRank,
-  findSellerPage
+  findSellerPage,
+  findCompanyCountry
 }

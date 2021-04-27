@@ -5,7 +5,7 @@ import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
 import AsinList from '../components/AsinList'
 import { CSVLink, CSVDownload } from 'react-csv'
-import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage } from '../utils/helper'
+import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage, findCompanyCountry } from '../utils/helper'
 import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 import { useAuth } from '../auth'
 
@@ -15,6 +15,7 @@ export default function RevenueByAsins({ props }) {
   const [asins, setAsins] = useState([]);
   const [productInfoArray, setProductInfoArray] = useState([]);
   const [isLoading, setIsLoading] = useState(false)
+  const [scrapeForSellerCountry, setScrapeForSellerCountry] = useState(true)
 
   const uploadCSV = (event) => {
     const csvFile = event.target.files[0]
@@ -53,8 +54,7 @@ export default function RevenueByAsins({ props }) {
 
       // Find company location
       const sellerPage = findSellerPage(product)
-      const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
-      const companyCountry = location.data.country
+      const companyCountry = await findCompanyCountry(sellerPage, scrapeForSellerCountry)
 
       const productInfo = {
         ASIN: asins[i],
@@ -78,7 +78,7 @@ export default function RevenueByAsins({ props }) {
 
   if (user) {
     return (
-      <div style={{ marginTop: '1rem' }} className="container">
+      <div style={{ marginTop: '2rem' }} className="container">
 
         <div className="is-justify-content-center is-align-items-center is-flex">
           <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
@@ -99,7 +99,22 @@ export default function RevenueByAsins({ props }) {
               </div>
             </div>
 
-            <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
+            <div className="is-justify-content-center is-align-items-center is-flex">
+              <div className="field mt-4">
+                <input
+                  id="switchExample"
+                  type="checkbox"
+                  name="switchExample"
+                  className="switch"
+                  onClick={() => {
+                    setScrapeForSellerCountry(!scrapeForSellerCountry)
+                  }}
+                  defaultChecked={scrapeForSellerCountry ? 'checked' : ''} />
+                <label htmlFor="switchExample">Scrape for seller's country</label>
+              </div>
+            </div>
+
+            {/* <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
               <input
                 className=""
                 type="file"
@@ -107,7 +122,7 @@ export default function RevenueByAsins({ props }) {
                 placeholder={null}
                 onChange={(event) => uploadCSV(event)}
               />
-            </div>
+            </div> */}
 
             <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
               <button type="button" className="button is-info mr-2" onClick={fetchProductDetails}>Scrape</button>
