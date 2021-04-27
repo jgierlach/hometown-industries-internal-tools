@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import axios from 'axios'
 import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
@@ -6,8 +7,10 @@ import AsinList from '../components/AsinList'
 import { CSVLink, CSVDownload } from 'react-csv'
 import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage } from '../utils/helper'
 import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
+import { useAuth } from '../auth'
 
 export default function RevenueByAsins({ props }) {
+  const { user } = useAuth();
   const [textarea, setTextarea] = useState('')
   const [asins, setAsins] = useState([]);
   const [productInfoArray, setProductInfoArray] = useState([]);
@@ -73,51 +76,58 @@ export default function RevenueByAsins({ props }) {
     setIsLoading(false)
   }
 
-  return (
-    <div style={{ marginTop: '1rem' }} className="container">
+  if (user) {
+    return (
+      <div style={{ marginTop: '1rem' }} className="container">
 
-      <div className="is-justify-content-center is-align-items-center is-flex">
-        <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
-          <h1 className="title has-text-centered">Revenue By Asins</h1>
-          <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-            <div style={{ width: '14rem' }}>
-              <textarea
-                style={{ background: '#fafafa' }}
-                className="textarea is-primary"
-                type="text"
-                value={textarea}
-                placeholder="Paste in your asins"
-                onChange={(event) => {
-                  setTextarea(event.target.value)
-                  setAsins(event.target.value.split('\n'))
-                }}
+        <div className="is-justify-content-center is-align-items-center is-flex">
+          <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
+            <h1 className="title has-text-centered">Revenue By Asins</h1>
+            <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
+              <div style={{ width: '14rem' }}>
+                <textarea
+                  style={{ background: '#fafafa' }}
+                  className="textarea is-primary"
+                  type="text"
+                  value={textarea}
+                  placeholder="Paste in your asins"
+                  onChange={(event) => {
+                    setTextarea(event.target.value)
+                    setAsins(event.target.value.split('\n'))
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
+              <input
+                className=""
+                type="file"
+                name="file"
+                placeholder={null}
+                onChange={(event) => uploadCSV(event)}
               />
             </div>
-          </div>
 
-          <div className="mt-3 is-flex is-justify-content-center is-align-items-center">
-            <input
-              className=""
-              type="file"
-              name="file"
-              placeholder={null}
-              onChange={(event) => uploadCSV(event)}
-            />
-          </div>
+            <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+              <button type="button" className="button is-info mr-2" onClick={fetchProductDetails}>Scrape</button>
+              <CSVLink className="button is-primary" data={productInfoArray} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
+            </div>
 
-          <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-            <button type="button" className="button is-info mr-2" onClick={fetchProductDetails}>Scrape</button>
-            <CSVLink className="button is-primary" data={productInfoArray} filename="asin-scrape.csv">Export Asins to CSV</CSVLink>
           </div>
+        </div>
 
+        {isLoading && <LoadingAnimation />}
+
+        <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+          <AsinList productDetails={productInfoArray} />
         </div>
       </div>
+    )
+  } else {
+    return (
+      <h1 className="has-text-centered title mt-4">Please <Link href="/login">Login</Link> to your account.</h1>
+    )
+  }
 
-      {isLoading && <LoadingAnimation />}
-
-      <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-        <AsinList productDetails={productInfoArray} />
-      </div>
-    </div>
-  )
 }
