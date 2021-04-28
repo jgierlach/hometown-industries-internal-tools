@@ -5,6 +5,8 @@ import LoadingAnimation from '../components/LoadingAnimation'
 import { CSVLink } from 'react-csv';
 import { useAuth } from '../auth'
 import Link from 'next/link'
+import { findParentCategory, findParentRank, findSellerPage, findCompanyCountry } from '../utils/helper'
+import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 
 export default function AmazonSerp({ props }) {
   const { user } = useAuth();
@@ -42,12 +44,56 @@ export default function AmazonSerp({ props }) {
     setBrandName(event.target.value)
   }
 
+  const scrapeIndividualListings = async () => {
+    setIsLoading(true)
+    // Scrape individual listings to find Brand name and sales volume
+    for (let i = 0; i < searchResults.length; i++) {
+      let currentSearchResult = searchResults[i]
+      const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: searchResults[i].asin } })
+      // Individual listing
+      const product = response.data.product
+
+      // Find rank object
+      const bestSellersRank = product.bestsellers_rank
+
+      // Find parent category and rank
+      const parentCategory = findParentCategory(bestSellersRank)
+      const parentRank = findParentRank(bestSellersRank)
+
+      // Find review count
+      const reviewCount = searchResults[i].ratings_total
+
+      // Find expected sales volume
+      const expected = calculateExpected(parentRank, reviewCount, parentCategory)
+
+      const findPrice = () => {
+        if (currentSearchResult.price === undefined) {
+          return 0
+        }
+        return currentSearchResult.price.value
+      }
+
+      const price = findPrice()
+      console.log('price', price)
+      const number = new Intl.NumberFormat('en-IN')
+
+      const monthly_units_sold = number.format(expected)
+      const monthly_revenue = `$${number.format(Math.floor(price * expected))}`
+
+      setSearchResults((searchResults) => searchResults.map(searchResult => (searchResult.asin === currentSearchResult.asin ? { ...searchResult, monthly_units_sold, monthly_revenue } : searchResult)))
+
+      console.log('current search result', currentSearchResult)
+    }
+    setIsLoading(false)
+  }
+
   const fetchSerp = async () => {
     setSearchResults([])
     setSearchPayload([])
     setFilterOption('')
     setIsLoading(true)
 
+    // Scrape and load asins from Amazon search
     for (let i = 0; i < numPagesToScrape; i++) {
       let pageNumber = i + 1
       console.log('pageNumber', pageNumber)
@@ -120,7 +166,9 @@ export default function AmazonSerp({ props }) {
             </div>
 
             <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
-              <CSVLink className="button is-primary" data={searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
+              <button type="button" className="button is-primary is-small mr-2" onClick={scrapeIndividualListings}>Estimate Revenues</button>
+
+              <CSVLink className="button is-small" data={searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
             </div>
 
           </div>

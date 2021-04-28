@@ -10,12 +10,15 @@ const lower = (rank, reviewCount) => {
 }
 
 const expected = (rank, reviewCount) => {
+  if (rank === 'No Parent Rank') {
+    return 0
+  }
   rank = Math.log10(rank)
   const result = Math.floor(53283 - 15911 * rank + 0.1436 * reviewCount)
   if (result < 0) {
     return 0
   }
-  return number.format(result)
+  return result
 }
 
 const upper = (rank, reviewCount) => {
