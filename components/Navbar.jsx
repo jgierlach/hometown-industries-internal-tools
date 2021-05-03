@@ -13,8 +13,9 @@ const Navbar = () => {
             <Link href="/"><a className="navbar-item">Home</a></Link>
             <Link href="/amazonserp"><a className="navbar-item">Amazon SERP</a></Link>
             <Link href="/revenuebyasins"><a className="navbar-item">Revenue By ASINs</a></Link>
+            <Link href="/allasinsforseller"><a className="navbar-item">Fetch All Asins For Seller</a></Link>
             {/* <Link href="/scraperank"><a className="navbar-item">Scrape Rank From File</a></Link> */}
-            <Link href="/monitorasins"><a className="navbar-item">Monitor Asins</a></Link>
+            {/* <Link href="/monitorasins"><a className="navbar-item">Monitor Asins</a></Link> */}
           </div>
           <div className="navbar-end">
             <div className="navbar-item">
