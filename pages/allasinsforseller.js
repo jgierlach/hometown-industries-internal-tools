@@ -13,7 +13,6 @@ export default function AllAsinsForSeller({ props }) {
   const [asin, setAsin] = useState('')
   const [sellerId, setSellerId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [numPagesToScrape, setNumPagesToScrape] = useState(1)
   const [allAsins, setAllAsins] = useState([])
 
   const fetchSellerId = async () => {
@@ -29,13 +28,15 @@ export default function AllAsinsForSeller({ props }) {
     setAllAsins([])
     setIsLoading(true)
     // Make initial request to fetch seller's first page and the total number of pages
-    const sellerAsins = await axios.get('/api/findallasinsbyseller', { params: { sellerId: sellerId, page: numPagesToScrape } })
+    const sellerAsins = await axios.get('/api/findallasinsbyseller', { params: { sellerId: sellerId, page: 1 } })
     // Set asins based on what you find on the first page
     setAllAsins(sellerAsins.data.asins.seller_products)
     // Set the total number of pages to scrape based on what you see in the first call
-    setNumPagesToScrape(sellerAsins.data.asins.pagination.total_pages)
-    // If the number of seller pages is greater than the 1st one keep scraping
-    for (let i = 1; i < numPagesToScrape; i++) {
+    const numPagesToScrape = sellerAsins.data.asins.pagination.total_pages
+    console.log(numPagesToScrape)
+    // If the number of seller pages is greater than 1 keep scraping
+    for (let i = 2; i <= numPagesToScrape; i++) {
+      console.log(`Page ${i} scraped!`)
       const response = await axios.get('/api/findallasinsbyseller', { params: { sellerId: sellerId, page: i } })
       setAllAsins((allAsins) => allAsins.concat(response.data.asins.seller_products))
     }
