@@ -8,7 +8,7 @@ const findPrice = (price) => {
   return price.value
 }
 
-const SearchResult = (props) => {
+const AsinsBySeller = (props) => {
   const number = Intl.NumberFormat();
   const { asin, brand, rating, ratings_total, image, link } = props.result
   const price = findPrice(props.result.price)
@@ -22,8 +22,8 @@ const SearchResult = (props) => {
       <td>{brand}</td>
       <td>{rating}</td>
       <td>{ratings_total}</td>
-      {/* <td>{props.result.lifetime_sales_volume !== undefined ? props.result.lifetime_sales_volume : 'N/A'}</td>
-      <td>{props.result.lifetime_revenue !== undefined ? props.result.lifetime_revenue : 'N/A'}</td> */}
+      {/* <td>{props.result.monthly_units_sold !== undefined ? props.result.monthly_units_sold : 'N/A'}</td> */}
+      {/* <td>{props.result.monthly_revenue !== undefined ? props.result.monthly_revenue : 'N/A'}</td> */}
       <td>{lowerLifetimeUnitsSold}</td>
       <td>{lowerLifetimeRevenue}</td>
       <td><img className="image is-32x32" src={image} /></td>
@@ -32,4 +32,4 @@ const SearchResult = (props) => {
   )
 }
 
-export default SearchResult
+export default AsinsBySeller

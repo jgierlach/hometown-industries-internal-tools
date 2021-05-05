@@ -69,8 +69,24 @@ const calculateUpper = (rank, reviewCount, parentCategory) => {
   return upper(rank, reviewCount)
 }
 
+const calculateLowerLifetimeUnitsSold = (reviewCount) => {
+  if (reviewCount === undefined) {
+    return 0
+  }
+  return reviewCount / 0.08
+}
+
+const calculateUpperLifetimeUnitsSold = (reviewCount) => {
+  if (reviewCount === undefined) {
+    return 0
+  }
+  return reviewCount / 0.12
+}
+
 module.exports = {
   calculateLower,
   calculateExpected,
-  calculateUpper
+  calculateUpper,
+  calculateLowerLifetimeUnitsSold,
+  calculateUpperLifetimeUnitsSold
 }
