@@ -6,7 +6,7 @@ import { CSVLink } from 'react-csv';
 import { useAuth } from '../auth'
 import Link from 'next/link'
 import { findParentCategory, findParentRank, findSellerPage, findCompanyCountry } from '../utils/helper'
-import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
+import { calculateLowerLifetimeUnitsSold, calculateUpperLifetimeUnitsSold } from '../utils/revenueCalculator'
 
 export default function AmazonSerp({ props }) {
   const { user } = useAuth();
@@ -49,23 +49,18 @@ export default function AmazonSerp({ props }) {
     // Scrape individual listings to find Brand name and sales volume
     for (let i = 0; i < searchResults.length; i++) {
       let currentSearchResult = searchResults[i]
-      const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: searchResults[i].asin } })
-      // Individual listing
-      const product = response.data.product
+      // const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: searchResults[i].asin } })
+      // // Individual listing
+      // const product = response.data.product
 
-      // Find rank object
-      const bestSellersRank = product.bestsellers_rank
+      // // Find rank object
+      // const bestSellersRank = product.bestsellers_rank
 
-      // Find parent category and rank
-      const parentCategory = findParentCategory(bestSellersRank)
-      const parentRank = findParentRank(bestSellersRank)
+      // // Find parent category and rank
+      // const parentCategory = findParentCategory(bestSellersRank)
+      // const parentRank = findParentRank(bestSellersRank)
 
-      // Find review count
-      const reviewCount = searchResults[i].ratings_total
-
-      // Find expected sales volume
-      const expected = calculateExpected(parentRank, reviewCount, parentCategory)
-
+      // Find the price
       const findPrice = () => {
         if (currentSearchResult.price === undefined) {
           return 0
@@ -74,13 +69,18 @@ export default function AmazonSerp({ props }) {
       }
 
       const price = findPrice()
-      console.log('price', price)
-      const number = new Intl.NumberFormat('en-IN')
+      const number = new Intl.NumberFormat()
 
-      const monthly_units_sold = number.format(expected)
-      const monthly_revenue = `$${number.format(Math.floor(price * expected))}`
+      // Find review count
+      const reviewCount = searchResults[i].ratings_total
 
-      setSearchResults((searchResults) => searchResults.map(searchResult => (searchResult.asin === currentSearchResult.asin ? { ...searchResult, monthly_units_sold, monthly_revenue } : searchResult)))
+      // Find lower lifetime sales volume
+      const expected = calculateLowerLifetimeUnitsSold(reviewCount)
+
+      const lifetime_sales_volume = number.format(Math.floor(expected))
+      const lifetime_revenue = `$${number.format(Math.floor(price * expected))}`
+
+      setSearchResults((searchResults) => searchResults.map(searchResult => (searchResult.asin === currentSearchResult.asin ? { ...searchResult, lifetime_sales_volume, lifetime_revenue } : searchResult)))
 
       console.log('current search result', currentSearchResult)
     }
@@ -176,7 +176,7 @@ export default function AmazonSerp({ props }) {
 
         {isLoading && <LoadingAnimation />}
 
-        <div style={{ marginTop: '2rem' }} className="is-justify-content-center is-align-items-center is-flex">
+        <div style={{ marginTop: '2rem', marginBottom: '2rem' }} className="is-justify-content-center is-align-items-center is-flex">
           <SearchResultsList searchResults={searchResults} />
         </div>
       </div>
