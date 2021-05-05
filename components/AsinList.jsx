@@ -4,7 +4,7 @@ import React from 'react'
 const AsinList = (props) => {
   return (
     <div style={{ boxShadow: '0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%)' }} className="table-container">
-      <table className="table is-bordered is-striped is-hoverable is-fullwidth">
+      <table className="table is-bordered is-striped is-fullwidth">
         <thead>
           <tr>
             <th>ASIN</th>

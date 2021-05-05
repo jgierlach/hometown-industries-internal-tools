@@ -43,7 +43,7 @@ export default function AllAsinsForSeller({ props }) {
     // If the number of seller pages is greater than 1 keep scraping
     if (numPagesToScrape > 1) {
       for (let i = 2; i <= numPagesToScrape; i++) {
-        console.log(`Page ${i} scraped!`)
+        console.log(`Page ${i} found!`)
         const response = await axios.get('/api/findallasinsbyseller', { params: { sellerId: sellerId, page: i } })
         setAllAsins((allAsins) => allAsins.concat(response.data.asins.seller_products))
       }
