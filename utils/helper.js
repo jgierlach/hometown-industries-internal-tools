@@ -7,6 +7,16 @@ const findParentCategory = (bestSellersRank) => {
   return bestSellersRank[0].category
 }
 
+const findBestSellersRank = (product) => {
+  if (product === undefined) {
+    return undefined
+  }
+  if (product.bestsellers_rank === undefined) {
+    return undefined
+  }
+  return product.bestsellers_rank
+}
+
 const findParentRank = (bestSellersRank) => {
   if (bestSellersRank === undefined) {
     return 'No Parent Rank'
@@ -41,7 +51,10 @@ const findChildRank = (bestSellersRank) => {
 }
 
 const findSellerPage = (product) => {
-  if (product.buybox_winner.fulfillment.third_party_seller === undefined) {
+  if (product === undefined) {
+    return 'Sold By Amazon'
+  }
+  if (product.buybox_winner.fulfillment === undefined) {
     return 'Sold By Amazon'
   }
   return product.buybox_winner.fulfillment.third_party_seller.link
@@ -55,11 +68,45 @@ const findCompanyCountry = async (sellerPage, scrapeForSellerCountry) => {
   return 'N/A'
 }
 
+const findThumbnail = (product) => {
+  if (product === undefined) {
+    return 'https://i.stack.imgur.com/mwFzF.png'
+  }
+  if (product.main_image === undefined) {
+    return 'https://i.stack.imgur.com/mwFzF.png'
+  }
+  return product.main_image.link
+}
+
+const findReviewCount = (product) => {
+  if (product === undefined) {
+    return 0
+  }
+  if (product.ratings_total === undefined) {
+    return 0
+  }
+  return product.ratings_total
+}
+
+const findReviewScore = (product) => {
+  if (product === undefined) {
+    return 'Not rated'
+  }
+  if (product.rating === undefined) {
+    return 'Not Rated'
+  }
+  return product.rating
+}
+
 module.exports = {
   findParentCategory,
   findParentRank,
   findChildCategory,
   findChildRank,
   findSellerPage,
-  findCompanyCountry
+  findCompanyCountry,
+  findThumbnail,
+  findReviewCount,
+  findReviewScore,
+  findBestSellersRank
 }

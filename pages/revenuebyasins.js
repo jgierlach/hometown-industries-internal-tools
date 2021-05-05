@@ -5,7 +5,7 @@ import Papa from 'papaparse'
 import LoadingAnimation from '../components/LoadingAnimation'
 import AsinList from '../components/AsinList'
 import { CSVLink, CSVDownload } from 'react-csv'
-import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage, findCompanyCountry } from '../utils/helper'
+import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage, findCompanyCountry, findThumbnail, findReviewCount, findReviewScore, findBestSellersRank } from '../utils/helper'
 import { calculateLower, calculateExpected, calculateUpper } from '../utils/revenueCalculator'
 import { useAuth } from '../auth'
 
@@ -37,12 +37,15 @@ export default function RevenueByAsins({ props }) {
       const product = response.data.product
 
       // Find thumbnail, review count, and review score
-      const thumbnail = product.main_image.link
-      const reviewCount = product.ratings_total
-      const reviewScore = product.rating
+      // const thumbnail = product.main_image.link
+      const thumbnail = findThumbnail(product)
+      const reviewCount = findReviewCount(product)
+      // const reviewCount = product.ratings_total
+      // const reviewScore = product.rating
+      const reviewScore = findReviewScore(product)
 
       // Find rank object
-      const bestSellersRank = product.bestsellers_rank
+      const bestSellersRank = findBestSellersRank(product)
 
       // Find parent category and rank
       const parentCategory = findParentCategory(bestSellersRank)
@@ -52,9 +55,11 @@ export default function RevenueByAsins({ props }) {
       const childCategory = findChildCategory(bestSellersRank)
       const childRank = findChildRank(bestSellersRank)
 
-      // Find company location
-      const sellerPage = findSellerPage(product)
-      const companyCountry = await findCompanyCountry(sellerPage, scrapeForSellerCountry)
+      // Find company location if that has been selected
+      if (scrapeForSellerCountry) {
+        var sellerPage = findSellerPage(product)
+        var companyCountry = await findCompanyCountry(sellerPage, scrapeForSellerCountry)
+      }
 
       const productInfo = {
         ASIN: asins[i],
@@ -134,7 +139,7 @@ export default function RevenueByAsins({ props }) {
 
         {isLoading && <LoadingAnimation />}
 
-        <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+        <div style={{ marginTop: '2rem', marginBottom: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
           <AsinList productDetails={productInfoArray} />
         </div>
       </div>

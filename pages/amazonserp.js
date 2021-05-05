@@ -166,9 +166,9 @@ export default function AmazonSerp({ props }) {
             </div>
 
             <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
-              <button type="button" className="button is-primary is-small mr-2" onClick={scrapeIndividualListings}>Estimate Revenues</button>
+              {/* <button type="button" className="button is-primary is-small mr-2" onClick={scrapeIndividualListings}>Estimate Revenues</button> */}
 
-              <CSVLink className="button is-small" data={searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
+              <CSVLink className="button is-primary mt-2" data={searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
             </div>
 
           </div>
