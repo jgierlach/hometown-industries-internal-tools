@@ -14,6 +14,7 @@ const SearchResultsList = (props) => {
             <th>Review Count</th>
             <th>Lifetime Units Sold</th>
             <th>Lifetime Revenues</th>
+            <th>Country Code</th>
             <th>Thumbnail</th>
             <th>Link</th>
           </tr>

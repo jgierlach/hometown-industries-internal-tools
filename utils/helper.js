@@ -51,16 +51,16 @@ const findChildRank = (bestSellersRank) => {
 }
 
 const findSellerPage = (product) => {
-  if (product === undefined) {
-    return 'Sold By Amazon'
-  }
-  if (product.buybox_winner.fulfillment === undefined) {
+  if (product === undefined || product.buybox_winner === undefined || product.buybox_winner.fulfillment === undefined || product.buybox_winner.fulfillment.third_party_seller === undefined || product.buybox_winner.fulfillment.third_party_seller.link === undefined) {
     return 'Sold By Amazon'
   }
   return product.buybox_winner.fulfillment.third_party_seller.link
 }
 
 const findCompanyCountry = async (sellerPage, scrapeForSellerCountry) => {
+  if (sellerPage === 'Sold By Amazon') {
+    return 'Sold By Amazon'
+  }
   if (scrapeForSellerCountry) {
     const location = await axios.get('/api/companylocation', { params: { url: sellerPage } })
     return location.data.country
@@ -98,6 +98,13 @@ const findReviewScore = (product) => {
   return product.rating
 }
 
+const findPrice = (product) => {
+  if (product === undefined || product.price === undefined || product.price.value === undefined) {
+    return 0
+  }
+  return product.price.value
+}
+
 module.exports = {
   findParentCategory,
   findParentRank,
@@ -108,5 +115,6 @@ module.exports = {
   findThumbnail,
   findReviewCount,
   findReviewScore,
-  findBestSellersRank
+  findBestSellersRank,
+  findPrice
 }

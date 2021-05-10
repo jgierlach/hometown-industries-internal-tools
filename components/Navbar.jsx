@@ -11,7 +11,7 @@ const Navbar = () => {
         <div id="navbarBasicExample" className="navbar-menu">
           <div className="navbar-start">
             <Link href="/"><a className="navbar-item">Home</a></Link>
-            <Link href="/amazonserp"><a className="navbar-item">Amazon SERP</a></Link>
+            <Link href="/amazonserp"><a className="navbar-item">Amazon Search</a></Link>
             <Link href="/revenuebyasins"><a className="navbar-item">Revenue By ASINs</a></Link>
             <Link href="/allasinsforseller"><a className="navbar-item">Fetch All Asins For Seller</a></Link>
             {/* <Link href="/scraperank"><a className="navbar-item">Scrape Rank From File</a></Link> */}
