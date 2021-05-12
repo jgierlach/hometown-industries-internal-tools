@@ -85,7 +85,7 @@ export default function RevenueByAsins({ props }) {
     return (
       <div style={{ marginTop: '2rem' }} className="container">
 
-        <div className="is-justify-content-center is-align-items-center is-flex">
+        <div className="is-justify-content-center is-align-items-center is-flex mb-3">
           <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
             <h1 className="title has-text-centered">Revenue By Asins</h1>
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
@@ -149,5 +149,4 @@ export default function RevenueByAsins({ props }) {
       <h1 className="has-text-centered title mt-4">Please <Link href="/login">Login</Link> to your account.</h1>
     )
   }
-
 }

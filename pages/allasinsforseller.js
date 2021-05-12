@@ -4,7 +4,7 @@ import axios from 'axios'
 import LoadingAnimation from '../components/LoadingAnimation'
 import AsinsBySellerList from '../components/AsinsBySellerList'
 import { CSVLink } from 'react-csv'
-import { findParentCategory, findParentRank, findChildCategory, findChildRank, findSellerPage, findCompanyCountry } from '../utils/helper'
+import { findSellerPage, findPrice } from '../utils/helper'
 import { calculateLowerLifetimeUnitsSold } from '../utils/revenueCalculator'
 import { useAuth } from '../auth'
 
@@ -15,15 +15,31 @@ export default function AllAsinsForSeller({ props }) {
   const [isLoading, setIsLoading] = useState(false)
   const [allAsins, setAllAsins] = useState([])
   const [showStats, setShowStats] = useState(false)
+  const [showSellerId, setShowSellerId] = useState(false)
+  const [showBusinessNameAndAddress, setShowBusinessNameAndAddress] = useState(false)
+  const [businessName, setBusinessName] = useState('')
+  const [businessAddress, setBusinessAddress] = useState('')
+  const [businessOwner, setBusinessOwner] = useState('')
 
   const number = Intl.NumberFormat();
 
   const fetchSellerId = async () => {
     setIsLoading(true)
+    setShowSellerId(true)
     const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: asin } })
     const product = response.data.product
     const sellerPage = findSellerPage(product)
     setSellerId(sellerPage.split('seller=')[1].split('&')[0])
+    setIsLoading(false)
+  }
+
+  const fetchBusinessNameAndAddress = async () => {
+    setIsLoading(true)
+    setShowBusinessNameAndAddress(true)
+    const response = await axios.get('/api/scrapeaddressandcompanyname', { params: { asin: asin } })
+    setBusinessName(response.data.businessName)
+    setBusinessAddress(response.data.businessAddress)
+    setBusinessOwner(response.data.businessOwner)
     setIsLoading(false)
   }
 
@@ -63,7 +79,7 @@ export default function AllAsinsForSeller({ props }) {
   const calculateTotalLifetimeSalesRevenue = (allAsins) => {
     let lifetimeRevenue = 0
     allAsins.forEach(asins => {
-      lifetimeRevenue += calculateLowerLifetimeUnitsSold(asins.ratings_total) * asins.price.value
+      lifetimeRevenue += calculateLowerLifetimeUnitsSold(asins.ratings_total) * findPrice(asins)
     })
     return lifetimeRevenue
   }
@@ -85,7 +101,11 @@ export default function AllAsinsForSeller({ props }) {
   const calculateAverageReviewCount = (allAsins) => {
     let reviewCount = 0
     allAsins.forEach(asins => {
-      reviewCount += asins.ratings_total
+      if (asins.ratings_total === undefined) {
+        reviewCount += 0
+      } else {
+        reviewCount += asins.ratings_total
+      }
     })
     return reviewCount / allAsins.length
   }
@@ -98,7 +118,7 @@ export default function AllAsinsForSeller({ props }) {
     return (
       <div style={{ marginTop: '2rem' }} className="container">
 
-        <div className="is-justify-content-center is-align-items-center is-flex">
+        <div className="is-justify-content-center is-align-items-center is-flex mb-3">
           <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
             <h1 className="title has-text-centered">All Asins By Seller</h1>
             <div className="mt-3 is-justify-content-center is-align-items-center is-flex">
@@ -121,21 +141,38 @@ export default function AllAsinsForSeller({ props }) {
             </div>
 
             {/* {isLoading && <LoadingAnimation />} */}
+            {showSellerId &&
+              <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex box pa-1">
+                <p className="title is-6">Seller ID: {sellerId}</p>
+              </div>}
 
-            <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex box pa-1">
-              <p className="title is-6">Seller ID: {sellerId}</p>
+            <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+              <button onClick={fetchAllAsinsForSeller} type="button" className="button is-light">Fetch All Asins From Seller</button>
             </div>
 
             <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-              <button onClick={fetchAllAsinsForSeller} type="button" className="button is-info">Fetch All Asins From Seller</button>
+              <button onClick={fetchBusinessNameAndAddress} type="button" className="button is-light">Fetch Business Name and Address</button>
             </div>
 
+            {showBusinessNameAndAddress && <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
+              <div className="box bg-white pa-1 mb-3 mt-2">
+                <p className="has-text-centered"><strong>Business Owner:</strong></p>
+                <p className="has-text-centered">{businessOwner}</p>
+                <p className="has-text-centered mt-3"><strong>Business Name:</strong></p>
+                <p className="has-text-centered">{businessName}</p>
+                <p className="has-text-centered mt-3"><strong>Business Address:</strong></p>
+                <p className="has-text-centered">{businessAddress}</p>
+              </div>
+            </div>}
+
             <div style={{ marginTop: '1rem' }} className="is-justify-content-center	is-align-items-center is-flex">
-              <CSVLink className="button is-primary" data={allAsins} filename="asins.csv">Export Asins to CSV</CSVLink>
+              <CSVLink className="button is-light" data={allAsins} filename="asins.csv">Export Asins to CSV</CSVLink>
             </div>
 
           </div>
         </div>
+
+        {isLoading && <LoadingAnimation />}
 
         { showStats &&
           <div className="is-justify-content-center is-align-items-center is-flex mt-3">
@@ -165,8 +202,6 @@ export default function AllAsinsForSeller({ props }) {
             </div>
           </div>
         }
-
-        {isLoading && <LoadingAnimation />}
 
         {/* <div style={{ marginTop: '2rem' }} className="is-justify-content-center	is-align-items-center is-flex">
           <AsinList productDetails={allAsins} />

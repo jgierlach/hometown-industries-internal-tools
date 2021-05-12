@@ -48,6 +48,12 @@ const assignCountry = (snippet) => {
   if (findCountry(snippet, 'J', 'P')) {
     return 'JP'
   }
+  if (findCountry(snippet, 'H', 'K')) {
+    return 'HK'
+  }
+  if (findCountry(snippet, 'M', 'U')) {
+    return 'MU'
+  }
   return 'Country Not Found'
 }
 

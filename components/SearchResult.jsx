@@ -1,6 +1,7 @@
 import React from 'react'
 import { calculateLowerLifetimeUnitsSold, calculateUpperLifetimeUnitsSold } from '../utils/revenueCalculator'
-// import LoadingAnimation from './LoadingAnimation'
+import LoadingAnimation from './LoadingAnimation'
+
 const findPrice = (price) => {
   if (price === undefined) {
     return 0
@@ -26,7 +27,7 @@ const SearchResult = (props) => {
       <td>{props.result.lifetime_revenue !== undefined ? props.result.lifetime_revenue : 'N/A'}</td> */}
       <td>{lowerLifetimeUnitsSold}</td>
       <td>{lowerLifetimeRevenue}</td>
-      <td>{props.result.countryCode !== undefined ? props.result.countryCode : 'N/A'}</td>
+      <td>{props.result.countryCode === undefined ? 'N/A' : props.result.countryCode === 'loading' ? <LoadingAnimation size="small" /> : props.result.countryCode}</td>
       <td><img className="image is-32x32" src={image} /></td>
       <td><a href={link} target="_blank">Link</a></td>
     </tr>

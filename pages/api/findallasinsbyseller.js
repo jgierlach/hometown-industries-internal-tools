@@ -2,7 +2,6 @@ const axios = require('axios')
 const API_KEY = process.env.RAINFOREST_API_KEY
 
 export default function handler(req, res) {
-  console.log('find all asins by seller api route fired')
   const sellerId = req.query.sellerId
   const page = req.query.page
   console.log('sellerId', sellerId)

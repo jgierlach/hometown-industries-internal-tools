@@ -5,8 +5,8 @@ import LoadingAnimation from '../components/LoadingAnimation'
 import { CSVLink } from 'react-csv';
 import { useAuth } from '../auth'
 import Link from 'next/link'
-import { findParentCategory, findParentRank, findSellerPage, findCompanyCountry } from '../utils/helper'
-import { calculateLowerLifetimeUnitsSold, calculateUpperLifetimeUnitsSold } from '../utils/revenueCalculator'
+import { findSellerPage, findCompanyCountry } from '../utils/helper'
+import { calculateLowerLifetimeUnitsSold } from '../utils/revenueCalculator'
 
 export default function AmazonSerp({ props }) {
   const { user } = useAuth();
@@ -16,7 +16,6 @@ export default function AmazonSerp({ props }) {
   const [isLoading, setIsLoading] = useState(false)
   const [numPagesToScrape, setNumPagesToScrape] = useState(1)
   const [filterOption, setFilterOption] = useState('')
-  const [brandName, setBrandName] = useState('')
 
   const updateSearchInput = (event) => {
     setSearchInput(event.target.value)
@@ -42,13 +41,15 @@ export default function AmazonSerp({ props }) {
 
   const scrapeForCountryCode = async () => {
     setIsLoading(true)
+    let countryCode = 'loading'
+    setSearchResults((searchResults) => searchResults.map(searchResult => ({ ...searchResult, countryCode })))
     for (let i = 0; i < searchResults.length; i++) {
       let currentSearchResult = searchResults[i]
       const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: searchResults[i].asin } })
       const product = response.data.product
 
       const sellerPage = findSellerPage(product)
-      const countryCode = await findCompanyCountry(sellerPage, true)
+      countryCode = await findCompanyCountry(sellerPage, true)
 
       setSearchResults((searchResults) => searchResults.map(searchResult => (searchResult.asin === currentSearchResult.asin ? { ...searchResult, countryCode } : searchResult)))
     }
@@ -120,7 +121,7 @@ export default function AmazonSerp({ props }) {
     return (
       <div style={{ marginTop: '2rem' }}>
 
-        <div className="is-justify-content-center is-align-items-center is-flex">
+        <div className="is-justify-content-center is-align-items-center is-flex mb-3">
           <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
 
             <h1 className="title has-text-centered">Amazon Search</h1>
