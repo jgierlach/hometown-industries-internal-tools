@@ -14,7 +14,9 @@ export default async function handler(req, res) {
     const product = response.data.product
     res.status(200).json({ product: product })
   } catch (err) {
-    res.status(500).json({ error: err })
     console.error(err)
+    res.status(200).json({ product: { message: 'Country Not Found' } })
+    // res.status(200).json({ product: { asin: 'B00P0YQYYW' } })
+    // res.status(500).json({ error: err })
   }
 }
