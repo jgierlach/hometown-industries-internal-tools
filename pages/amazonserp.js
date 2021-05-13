@@ -14,7 +14,9 @@ export default function AmazonSerp({ props }) {
   const [searchResults, setSearchResults] = useState([])
   const [searchPayload, setSearchPayload] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isPageLoading, setIsPageLoading] = useState(false)
   const [numPagesToScrape, setNumPagesToScrape] = useState(1)
+  const [currentPageNumber, setCurrentPageNumber] = useState(1)
   const [filterOption, setFilterOption] = useState('')
 
   const updateSearchInput = (event) => {
@@ -104,10 +106,12 @@ export default function AmazonSerp({ props }) {
     setSearchPayload([])
     setFilterOption('')
     setIsLoading(true)
+    setIsPageLoading(true)
 
     // Scrape and load asins from Amazon search
     for (let i = 0; i < numPagesToScrape; i++) {
       let pageNumber = i + 1
+      setCurrentPageNumber(pageNumber)
       console.log('pageNumber', pageNumber)
       const response = await axios.get('/api/scrapeamazonsearch', { params: { pageNumber: pageNumber, searchInput: searchInput } })
       setSearchResults((searchResults) => searchResults.concat(response.data.searchResults))
@@ -115,6 +119,7 @@ export default function AmazonSerp({ props }) {
     }
 
     setIsLoading(false)
+    setIsPageLoading(false)
   }
 
   if (user) {
@@ -172,11 +177,13 @@ export default function AmazonSerp({ props }) {
             <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
               {/* <button type="button" className="button is-primary is-small mr-2" onClick={scrapeIndividualListings}>Estimate Revenues</button> */}
 
-              <CSVLink className="button is-light mt-2" data={searchResults} filename="search-results.csv">Export Asins to CSV</CSVLink>
+              <CSVLink className="button is-light mt-2" data={searchResults} filename={`search-results-${searchInput.split(' ').join('+')}-${numPagesToScrape}-pages`}>Export Asins to CSV</CSVLink>
             </div>
 
           </div>
         </div>
+
+        {isPageLoading && <h1 className="title has-text-centered mt-3 mb-4">Page {currentPageNumber} Loading....</h1>}
 
         {isLoading && <LoadingAnimation />}
 
