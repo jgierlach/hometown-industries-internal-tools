@@ -57,6 +57,14 @@ const assignCountry = (snippet) => {
   return 'Country Not Found'
 }
 
+const findBusinessName = (businessInfo) => {
+  console.log(businessInfo.split('Business Name:')[1].split('Business Address:')[0])
+  if (businessInfo === undefined || businessInfo.split('Business Name:') === undefined || businessInfo.split('Business Name:')[1] === undefined || businessInfo.split('Business Name:')[1].split('Business Address:') === undefined || businessInfo.split('Business Name:')[1].split('Business Address:')[0] === undefined) {
+    return 'Not Found'
+  }
+  return businessInfo.split('Business Name:')[1].split('Business Address:')[0]
+}
+
 export default function handler(req, res) {
   const url = req.query.url
   if (url === 'Sold By Amazon') {
@@ -66,11 +74,17 @@ export default function handler(req, res) {
     params: {
       api_key: API_KEY,
       url: url,
+      render_js: 'false',
     }
   }).then(function (response) {
     const $ = cheerio.load(response.data)
     const businessInfo = $('.a-unordered-list').text().split(' ')
+    const businessNameInfo = $('.a-unordered-list').text()
+    const businessName = findBusinessName(businessNameInfo)
     const country = assignCountry(businessInfo[businessInfo.length - 1])
-    res.status(200).json({ country: country })
+    res.status(200).json({ country: country, company_name: businessName })
+  }).catch(err => {
+    console.log(err)
+    throw err
   })
 }
