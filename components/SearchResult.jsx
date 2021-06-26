@@ -27,7 +27,7 @@ const SearchResult = (props) => {
       <td>{props.result.lifetime_revenue !== undefined ? props.result.lifetime_revenue : 'N/A'}</td> */}
       <td>{lowerLifetimeUnitsSold}</td>
       <td>{lowerLifetimeRevenue}</td>
-      <td>{props.result.countryCode === undefined ? 'N/A' : props.result.countryCode === 'loading' ? <LoadingAnimation size="small" /> : props.result.countryCode}</td>
+      <td>{props.result.country_code === undefined ? 'N/A' : props.result.country_code === 'loading' ? <LoadingAnimation size="small" /> : props.result.country_code}</td>
       <td><img className="image is-32x32" src={image} /></td>
       <td><a href={link} target="_blank">Link</a></td>
     </tr>
