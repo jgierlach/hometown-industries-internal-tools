@@ -36,12 +36,10 @@ export default function RevenueByAsins({ props }) {
       const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: asins[i] } })
       const product = response.data.product
 
-      // Find thumbnail, review count, and review score
-      // const thumbnail = product.main_image.link
+      console.log('product', product)
+
       const thumbnail = findThumbnail(product)
       const reviewCount = findReviewCount(product)
-      // const reviewCount = product.ratings_total
-      // const reviewScore = product.rating
       const reviewScore = findReviewScore(product)
 
       // Find rank object
@@ -76,6 +74,7 @@ export default function RevenueByAsins({ props }) {
         Thumbnail: thumbnail,
         Link: `https://www.amazon.com/dp/${asins[i]}`
       }
+
       setProductInfoArray((productInfoArray) => [...productInfoArray, productInfo])
     }
     setIsLoading(false)

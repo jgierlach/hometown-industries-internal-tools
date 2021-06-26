@@ -5,7 +5,7 @@ import LoadingAnimation from '../components/LoadingAnimation'
 import { CSVLink } from 'react-csv';
 import { useAuth } from '../auth'
 import Link from 'next/link'
-import { findSellerPage, findCompanyCountry } from '../utils/helper'
+import { findSellerPage, findCompanyCountry, findReviewScore, findReviewCount, findBrand, findNumberOfOtherSellers, findPrice } from '../utils/helper'
 import { calculateLowerLifetimeUnitsSold } from '../utils/revenueCalculator'
 
 export default function AmazonSerp({ props }) {
@@ -15,7 +15,9 @@ export default function AmazonSerp({ props }) {
   const [searchPayload, setSearchPayload] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isPageLoading, setIsPageLoading] = useState(false)
+  const [areRecordsProcessing, setAreRecordsProcessing] = useState(false)
   const [numPagesToScrape, setNumPagesToScrape] = useState(1)
+  const [numRecordsProcessed, setNumRecordsProcessed] = useState(0)
   const [currentPageNumber, setCurrentPageNumber] = useState(1)
   const [filterOption, setFilterOption] = useState('')
 
@@ -25,6 +27,24 @@ export default function AmazonSerp({ props }) {
 
   const updateNumPagesToScrape = (event) => {
     setNumPagesToScrape(Number(event.target.value))
+  }
+
+  const csvData = () => {
+    return searchResults.map(result => {
+      return {
+        price: findPrice(result),
+        asin: result.asin,
+        rating: findReviewScore(result),
+        ratings_total: findReviewCount(result),
+        life_time_units_sold: calculateLowerLifetimeUnitsSold(findReviewCount(result)),
+        is_prime: result.is_prime,
+        brand: result.brand,
+        company_name: result.companyName,
+        country_code: result.countryCode,
+        number_of_other_sellers: result.numberOfOtherSellers,
+        link: result.link,
+      }
+    })
   }
 
   const updateFilterOption = (event) => {
@@ -43,19 +63,32 @@ export default function AmazonSerp({ props }) {
 
   const scrapeForCountryCode = async () => {
     setIsLoading(true)
-    let countryCode = 'loading'
-    setSearchResults((searchResults) => searchResults.map(searchResult => ({ ...searchResult, countryCode })))
+    setAreRecordsProcessing(true)
     for (let i = 0; i < searchResults.length; i++) {
+      setNumRecordsProcessed(i)
       let currentSearchResult = searchResults[i]
       const response = await axios.get('/api/scrapeamazonlisting', { params: { asin: searchResults[i].asin } })
       const product = response.data.product
-
       const sellerPage = findSellerPage(product)
-      countryCode = await findCompanyCountry(sellerPage, true)
 
-      setSearchResults((searchResults) => searchResults.map(searchResult => (searchResult.asin === currentSearchResult.asin ? { ...searchResult, countryCode } : searchResult)))
+      try {
+        // const companyInfo = await findCompanyCountry(sellerPage, true)
+        // const countryCode = companyInfo.country
+        // const companyName = companyInfo.company_name
+        const companyInfo = 'poot'
+        const countryCode = 'poot'
+        const companyName = 'poot'
+        const brand = findBrand(product)
+        const numberOfOtherSellers = findNumberOfOtherSellers(product)
+
+        setSearchResults((searchResults) => searchResults.map(searchResult => (searchResult.asin === currentSearchResult.asin ? { ...searchResult, countryCode, brand, companyName, numberOfOtherSellers } : searchResult)))
+      } catch (err) {
+        console.error(err)
+        throw err
+      }
     }
     setIsLoading(false)
+    setAreRecordsProcessing(false)
   }
 
   const scrapeIndividualListings = async () => {
@@ -152,18 +185,18 @@ export default function AmazonSerp({ props }) {
 
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
               <p style={{ marginTop: '.8rem' }}>Go back
-              <input
+                <input
                   style={{ width: '30px' }}
                   onChange={event => updateNumPagesToScrape(event)}
                   type="text"
                   value={numPagesToScrape} />
-              page{numPagesToScrape > 1 && <span>s</span>}
+                page{numPagesToScrape > 1 && <span>s</span>}
               </p>
             </div>
 
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
               <p>Sort By:
-               <select value={filterOption} onChange={(event) => updateFilterOption(event)}>
+                <select value={filterOption} onChange={(event) => updateFilterOption(event)}>
                   <option value="Default">Default</option>
                   <option value="Most Reviews">Most Reviews</option>
                 </select>
@@ -177,11 +210,13 @@ export default function AmazonSerp({ props }) {
             <div className="mt-3 mb-2 is-justify-content-center	is-align-items-center is-flex">
               {/* <button type="button" className="button is-primary is-small mr-2" onClick={scrapeIndividualListings}>Estimate Revenues</button> */}
 
-              <CSVLink className="button is-light mt-2" data={searchResults} filename={`search-results-${searchInput.split(' ').join('+')}-${numPagesToScrape}-pages`}>Export Asins to CSV</CSVLink>
+              <CSVLink className="button is-light mt-2" data={csvData(searchResults)} filename={`search-results-${searchInput.split(' ').join('+')}-${numPagesToScrape}-pages`}>Export Asins to CSV</CSVLink>
             </div>
 
           </div>
         </div>
+
+        {areRecordsProcessing && <h1 className="title has-text-centered mt-3 mb-4">{numRecordsProcessed} of {searchResults.length} records processed</h1>}
 
         {isPageLoading && <h1 className="title has-text-centered mt-3 mb-4">Page {currentPageNumber} Loading....</h1>}
 
