@@ -34,7 +34,7 @@ export default function RevenueByAsins({ props }) {
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
               <div style={{ width: '14rem' }}>
                 <textarea
-                  style={{ background: '#fafafa' }}
+                  style={{ background: '#fafafa', width: '95%' }}
                   className="textarea is-primary"
                   type="text"
                   value={textarea}

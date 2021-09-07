@@ -10,8 +10,8 @@ const CompanyInfoList = (props) => {
             <th>Name</th>
             <th>Email</th>
             <th>Phone Number</th>
-            <th>Employee Count</th>
-            <th>Annual Revenue</th>
+            {/* <th>Employee Count</th> */}
+            {/* <th>Annual Revenue</th> */}
             {/* <th>Website</th> */}
           </tr>
         </thead>
