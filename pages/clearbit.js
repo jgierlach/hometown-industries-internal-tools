@@ -29,10 +29,10 @@ export default function RevenueByAsins({ props }) {
     return (
       <div style={{ marginTop: '2rem' }} className="container">
         <div className="is-justify-content-center is-align-items-center is-flex mb-3">
-          <div style={{ width: '330px' }} className="box bg-white pa-1 mb-3 mt-2">
+          <div style={{ width: '480px' }} className="box bg-white pa-1 mb-3 mt-2">
             <h1 className="title has-text-centered">Clearbit</h1>
             <div className="mt-2 is-justify-content-center is-align-items-center is-flex">
-              <div style={{ width: '14rem' }}>
+              <div style={{ width: '85%' }}>
                 <textarea
                   style={{ background: '#fafafa', width: '95%' }}
                   className="textarea is-primary"
