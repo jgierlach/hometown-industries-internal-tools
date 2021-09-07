@@ -20,7 +20,7 @@ const setEmail = (siteEmails) => {
 }
 
 const checkUrl = (url, handle) => {
-  if (handle !== null) {
+  if (handle === null) {
     return 'N/A'
   }
   return `${url}/${handle}`
